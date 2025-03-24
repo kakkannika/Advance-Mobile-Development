@@ -23,4 +23,30 @@ class RidePreference {
         'arrival: ${arrival.name}, '
         'requestedSeats: $requestedSeats)';
   }
+  // apply operatore "== "
+  @override
+  bool operator == (Object other){
+    if(identical(this, other)){
+      return true;
+    }
+    // set the other as a ridpreference 
+    return other  is RidePreference && 
+      other.departure == departure &&
+      other.departureDate == departureDate &&
+      other.arrival == arrival &&
+      other.requestedSeats == requestedSeats;
+
+  }
+
+  // Apply hash code into the ridepreference model 
+   
+   @override 
+   int get hashCode{
+    return departure.hashCode ^
+           departureDate.hashCode ^
+           arrival.hashCode ^
+           requestedSeats.hashCode;
+    }
+  //  // hash code 
 }
+
