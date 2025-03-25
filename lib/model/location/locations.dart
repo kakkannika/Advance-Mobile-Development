@@ -39,4 +39,6 @@ class Location {
   String toString() {
     return name;
   }
+
+  static fromJson(json) {}
 }

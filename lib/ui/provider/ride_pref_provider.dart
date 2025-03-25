@@ -39,29 +39,24 @@ class RidesPreferencesProvider extends ChangeNotifier {
   }
 
   Future<void> _addPreference(RidePreference preference) async {
-    if (_pastPreferences.state == AsyncValueState.success && 
-        _pastPreferences.data != null) {
-      final List<RidePreference> currentData = _pastPreferences.data!;
+    try {
+      await repository.addPreference(preference);
       
-      if (!currentData.contains(preference)) {
-        try {
-          await repository.addPreference(preference);
+      if (_pastPreferences.state == AsyncValueState.success && 
+          _pastPreferences.data != null) {
+        final List<RidePreference> currentData = _pastPreferences.data!;
+        if (!currentData.contains(preference)) {
           currentData.add(preference);
           _pastPreferences = AsyncValue.success(currentData);
-          notifyListeners();
-        } catch (error) {
-          _pastPreferences = AsyncValue.error(error);
-          notifyListeners();
         }
-      }
-    } else {
-      try {
-        await repository.addPreference(preference);
+      } else {
         fetchPastPreferences();
-      } catch (error) {
-        _pastPreferences = AsyncValue.error(error);
-        notifyListeners();
       }
+      
+      notifyListeners();
+    } catch (error) {
+      _pastPreferences = AsyncValue.error(error);
+      notifyListeners();
     }
   }
 

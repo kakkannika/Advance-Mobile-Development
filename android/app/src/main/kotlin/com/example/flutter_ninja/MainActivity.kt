@@ -1,4 +1,4 @@
-package com.example.week_3_blabla_project
+package com.example.flutter_ninja
 
 import io.flutter.embedding.android.FlutterActivity
 
