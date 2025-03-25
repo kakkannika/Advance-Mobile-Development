@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:week_3_blabla_project/ui/provider/async_value.dart';
 import 'package:week_3_blabla_project/ui/provider/ride_pref_provider.dart';
 
 import '../../../model/ride/ride_pref.dart';
@@ -11,8 +12,7 @@ import 'widgets/ride_pref_history_tile.dart';
 
 const String blablaHomeImagePath = 'assets/images/blabla_home.png';
 
-///
-/// This screen allows user to:
+/// This screen allows the user to:
 /// - Enter his/her ride preference and launch a search on it
 /// - Or select a last entered ride preferences and launch a search on it
 ///
@@ -33,50 +33,45 @@ class RidePrefScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Watch the RidesPreferencesProvider
-    final ridePreferencesProvider = Provider.of<RidesPreferencesProvider>(context);
-    // Get the current preference
-    RidePreference? currentRidePreference = ridePreferencesProvider.currentPreference;
-    // Get the history preferences
-    List<RidePreference> pastPreferences = ridePreferencesProvider.preferencesHistory;
+Widget build(BuildContext context) {
+  final ridePreferencesProvider = Provider.of<RidesPreferencesProvider>(context);
+
+  // Get the state of the past preferences 
+  final pastPreferencesState = ridePreferencesProvider.pastPreferences;
+
+  // Check the state of the past preferences
+  if (pastPreferencesState.state == AsyncValueState.loading) {
+    return const BlaError(message: 'Loading...');
+  }
+
+  if (pastPreferencesState.state == AsyncValueState.error) {
+    return const BlaError(message: 'No connection. Try later');
+  }
+
+  if (pastPreferencesState.state == AsyncValueState.success) {
+    List<RidePreference> pastPreferences = pastPreferencesState.data!;
 
     return Stack(
       children: [
-        // 1 - Background Image
         const BlaBackground(),
-
-        // 2 - Foreground content
         Column(
           children: [
             SizedBox(height: BlaSpacings.m),
-            Text(
-              "Your pick of rides at low price",
-              style: BlaTextStyles.heading.copyWith(color: Colors.white),
-            ),
+            Text("Your pick of rides at low price", style: BlaTextStyles.heading.copyWith(color: Colors.white)),
             SizedBox(height: 100),
             Container(
               margin: EdgeInsets.symmetric(horizontal: BlaSpacings.xxl),
-              decoration: BoxDecoration(
-                color: Colors.white, // White background
-                borderRadius: BorderRadius.circular(16), // Rounded corners
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 2.1 Display the Form to input the ride preferences
                   RidePrefForm(
-                      initialPreference: currentRidePreference,
-                      onSubmit: (newPreference) => onRidePrefSelected(context, newPreference)),
+                    initialPreference: ridePreferencesProvider.currentPreference,
+                    onSubmit: (newPreference) => onRidePrefSelected(context, newPreference),
+                  ),
                   SizedBox(height: BlaSpacings.m),
-
-                  // 2.2 Optionally display a list of past preferences
                   SizedBox(
-                    height: 200, // Set a fixed height
+                    height: 200,
                     child: ListView.builder(
-                      shrinkWrap: true, // Fix ListView height issue
-                      physics: AlwaysScrollableScrollPhysics(),
                       itemCount: pastPreferences.length,
                       itemBuilder: (ctx, index) => RidePrefHistoryTile(
                         ridePref: pastPreferences[index],
@@ -92,6 +87,10 @@ class RidePrefScreen extends StatelessWidget {
       ],
     );
   }
+
+  return const BlaError(message: 'Unexpected error occurred');
+}
+
 }
 
 class BlaBackground extends StatelessWidget {
@@ -104,8 +103,36 @@ class BlaBackground extends StatelessWidget {
       height: 340,
       child: Image.asset(
         blablaHomeImagePath,
-        fit: BoxFit.cover, // Adjust image fit to cover the container
+        fit: BoxFit.cover, 
       ),
     );
+  }
+}
+
+class BlaError extends StatelessWidget {
+  const BlaError({super.key, required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Padding(
+      padding: const EdgeInsets.only(left: BlaSpacings.m, right: BlaSpacings.m, top: BlaSpacings.s),
+      child: Center(
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/images/blabla_wifi.png', // Error image asset
+              fit: BoxFit.none, // Adjust image fit to cover the container
+            ),
+            Text(
+              message,
+              style: BlaTextStyles.heading.copyWith(color: BlaColors.textNormal),
+            ),
+          ],
+        ),
+      ),
+    ));
   }
 }
