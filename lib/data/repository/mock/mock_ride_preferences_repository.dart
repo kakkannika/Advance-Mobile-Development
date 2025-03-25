@@ -1,7 +1,8 @@
-import '../../model/ride/ride_pref.dart';
+import 'package:week_3_blabla_project/dummy_data/dummy_data.dart';
+import 'package:week_3_blabla_project/model/ride/ride_pref.dart';
+
 import '../ride_preferences_repository.dart';
 
-import '../../dummy_data/dummy_data.dart';
 
 class MockRidePreferencesRepository extends RidePreferencesRepository {
   final List<RidePreference> _pastPreferences = fakeRidePrefs;
